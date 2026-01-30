@@ -1,0 +1,28 @@
+# ============================================================================
+# MCP Cloud Orchestrator - Python 의존성 목록
+# ============================================================================
+
+# FastAPI 프레임워크 및 ASGI 서버
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# 설정 관리
+pydantic-settings>=2.1.0
+
+# SSH 원격 실행 (Fabric)
+fabric>=3.2.0
+
+# Docker Python SDK
+docker>=7.0.0
+
+# 비동기 HTTP 클라이언트
+httpx>=0.26.0
+
+# 파일 업로드 처리
+python-multipart>=0.0.6
+
+# 비동기 SQLite (추후 확장용)
+aiosqlite>=0.19.0
+
+# 비동기 파일 I/O
+aiofiles>=23.2.0
