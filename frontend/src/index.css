@@ -1,22 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* AWS Console Style - Professional Data-Dense Design */
 :root {
-  --sidebar-bg: #0f172a;      /* slate-900 */
-  --main-bg: #fafafa;         /* zinc-50 */
+  --sidebar-bg: #0f172a;
+  /* slate-900 */
+  --main-bg: #fafafa;
+  /* zinc-50 */
   --card-bg: #ffffff;
-  --accent: #3b82f6;          /* blue-500 */
-  --accent-hover: #2563eb;    /* blue-600 */
-  --success: #22c55e;         /* green-500 */
-  --warning: #f59e0b;         /* amber-500 */
-  --danger: #ef4444;          /* red-500 */
-  --text-primary: #1e293b;    /* slate-800 */
-  --text-secondary: #64748b;  /* slate-500 */
-  --border: #e2e8f0;          /* slate-200 */
+  --accent: #3b82f6;
+  /* blue-500 */
+  --accent-hover: #2563eb;
+  /* blue-600 */
+  --success: #22c55e;
+  /* green-500 */
+  --warning: #f59e0b;
+  /* amber-500 */
+  --danger: #ef4444;
+  /* red-500 */
+  --text-primary: #1e293b;
+  /* slate-800 */
+  --text-secondary: #64748b;
+  /* slate-500 */
+  --border: #e2e8f0;
+  /* slate-200 */
 }
 
 body {
@@ -190,8 +198,15 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fadeIn {
@@ -199,8 +214,15 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .animate-pulse-slow {
