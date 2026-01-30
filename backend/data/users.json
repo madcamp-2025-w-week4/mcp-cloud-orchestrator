@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "updated_at": "2026-01-30T16:50:17.291828",
+    "description": "사용자 데이터 저장소"
+  },
+  "users": {
+    "user-demo-001": {
+      "id": "user-demo-001",
+      "username": "demo",
+      "email": "demo@example.com",
+      "password_hash": "demo",
+      "quota": {
+        "max_instances": 5,
+        "max_cpu": 16,
+        "max_memory": 32,
+        "used_instances": 1,
+        "used_cpu": 2,
+        "used_memory": 4
+      },
+      "is_active": true,
+      "created_at": "2026-01-30T00:00:00Z",
+      "last_login_at": null
+    },
+    "user-admin-001": {
+      "id": "user-admin-001",
+      "username": "admin",
+      "email": "admin@example.com",
+      "password_hash": "admin",
+      "quota": {
+        "max_instances": 20,
+        "max_cpu": 64,
+        "max_memory": 128,
+        "used_instances": 0,
+        "used_cpu": 0,
+        "used_memory": 0
+      },
+      "is_active": true,
+      "created_at": "2026-01-30T00:00:00Z",
+      "last_login_at": null
+    }
+  }
+}

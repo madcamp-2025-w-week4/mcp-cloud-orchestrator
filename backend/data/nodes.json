@@ -1,0 +1,190 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "updated_at": "2026-01-30T16:18:00Z",
+    "total_nodes": 18,
+    "description": "Tailscale VPN을 통해 연결된 1개 마스터 + 17개 워커 노드 목록"
+  },
+  "nodes": {
+    "camp-gpu-16": {
+      "id": "camp-gpu-16",
+      "hostname": "camp-gpu-16",
+      "tailscale_ip": "100.117.45.28",
+      "role": "master",
+      "description": "마스터 노드 - 클러스터 제어 담당",
+      "cpu_cores": 32,
+      "memory_gb": 128.0,
+      "tags": ["production", "control-plane", "gpu"]
+    },
+    "camp-61": {
+      "id": "camp-61",
+      "hostname": "camp-61",
+      "tailscale_ip": "100.112.111.30",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-62": {
+      "id": "camp-62",
+      "hostname": "camp-62",
+      "tailscale_ip": "100.74.193.12",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-64": {
+      "id": "camp-64",
+      "hostname": "camp-64",
+      "tailscale_ip": "100.119.242.41",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-65": {
+      "id": "camp-65",
+      "hostname": "camp-65",
+      "tailscale_ip": "100.67.220.41",
+      "role": "worker",
+      "description": "워커 노드 - 이전 마스터, 현재 워커",
+      "cpu_cores": 16,
+      "memory_gb": 64.0,
+      "tags": ["production", "compute", "high-memory"]
+    },
+    "camp-66": {
+      "id": "camp-66",
+      "hostname": "camp-66",
+      "tailscale_ip": "100.83.132.110",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-68": {
+      "id": "camp-68",
+      "hostname": "camp-68",
+      "tailscale_ip": "100.104.2.109",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-69": {
+      "id": "camp-69",
+      "hostname": "camp-69",
+      "tailscale_ip": "100.126.50.128",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-70": {
+      "id": "camp-70",
+      "hostname": "camp-70",
+      "tailscale_ip": "100.64.115.13",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-72": {
+      "id": "camp-72",
+      "hostname": "camp-72",
+      "tailscale_ip": "100.116.93.104",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-73": {
+      "id": "camp-73",
+      "hostname": "camp-73",
+      "tailscale_ip": "100.99.12.56",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-74": {
+      "id": "camp-74",
+      "hostname": "camp-74",
+      "tailscale_ip": "100.81.63.9",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-75": {
+      "id": "camp-75",
+      "hostname": "camp-75",
+      "tailscale_ip": "100.74.1.74",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-76": {
+      "id": "camp-76",
+      "hostname": "camp-76",
+      "tailscale_ip": "100.113.187.81",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-77": {
+      "id": "camp-77",
+      "hostname": "camp-77",
+      "tailscale_ip": "100.77.10.106",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-78": {
+      "id": "camp-78",
+      "hostname": "camp-78",
+      "tailscale_ip": "100.86.244.76",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-79": {
+      "id": "camp-79",
+      "hostname": "camp-79",
+      "tailscale_ip": "100.90.20.37",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    },
+    "camp-80": {
+      "id": "camp-80",
+      "hostname": "camp-80",
+      "tailscale_ip": "100.113.169.101",
+      "role": "worker",
+      "description": "워커 노드 - 범용 컴퓨팅",
+      "cpu_cores": 8,
+      "memory_gb": 32.0,
+      "tags": ["production", "compute"]
+    }
+  }
+}

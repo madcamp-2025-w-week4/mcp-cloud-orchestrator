@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "updated_at": "2026-01-30T16:50:17.288775",
+    "description": "노드별 포트 할당 현황"
+  },
+  "allocations": {
+    "camp-68": {
+      "86c31ecd": 8000
+    }
+  },
+  "next_port_per_node": {
+    "camp-68": 8001
+  }
+}
