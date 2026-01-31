@@ -11,7 +11,7 @@ export default defineConfig({
       'localhost',
       '127.0.0.1',
       '100.117.45.28',
-      'camp-gpu-16.tailab95b0.ts.net',
+      'kws.p-e.kr',
       '.ts.net'
     ]
   }

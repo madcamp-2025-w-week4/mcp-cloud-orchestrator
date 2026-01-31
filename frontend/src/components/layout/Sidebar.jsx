@@ -26,7 +26,7 @@ function Sidebar({ currentView, onNavigate }) {
             {/* Logo */}
             <div className="sidebar-logo flex items-center gap-3">
                 <Cloud className="w-6 h-6 text-blue-400" />
-                <span>MCP Cloud</span>
+                <span className="font-bold text-lg">kws</span>
             </div>
 
             {/* Navigation */}

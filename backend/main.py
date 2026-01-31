@@ -77,6 +77,8 @@ app = FastAPI(
 # CORS 미들웨어 설정
 # Production: Tailscale Funnel을 통한 접근 허용
 ALLOWED_ORIGINS = [
+    "https://kws.p-e.kr",
+    "http://kws.p-e.kr",
     "https://camp-gpu-16.tailab95b0.ts.net",
     "http://camp-gpu-16.tailab95b0.ts.net",
     "http://localhost:5174",

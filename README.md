@@ -81,6 +81,7 @@ Nginx 리버스 프록시를 사용하여 **단일 공개 URL**로 다중 사용
 ### 공개 접속 URL
 ```
 https://camp-gpu-16.tailab95b0.ts.net/
+https://kws.p-e.kr/ (아직 연결 안 됨)
 ```
 
 ### 아키텍처
@@ -343,50 +344,6 @@ mcp-cloud-orchestrator/
             ├── wizard/            # LaunchWizard
             └── nodes/             # NodesView
 ```
-
----
-
-## ⚡ AWS-Style 리소스 검증
-
-인스턴스 생성 시 **클러스터 실제 용량을 검증**합니다. 요청한 리소스를 제공할 수 있는 Worker 노드가 없으면 `InsufficientCapacity` 에러를 반환합니다.
-
-### 용량 API
-```bash
-# 클러스터 가용 용량 조회
-curl http://localhost:8000/dashboard/capacity
-```
-
-응답 예시:
-```json
-{
-  "max_cpu": 4,
-  "max_memory_gb": 2,
-  "cpu_options": [1, 2, 4],
-  "memory_options": [2]
-}
-```
-
-### InsufficientCapacity 에러
-```json
-{
-  "error": "InsufficientCapacity",
-  "message": "Requested 8 vCPU and 16 GB RAM, but max available is 4 vCPU and 2 GB RAM.",
-  "max_cpu_available": 4,
-  "max_memory_available": 2
-}
-```
-
-> **참고**: Launch Wizard UI는 실제 가용 리소스만 선택 가능하도록 동적으로 옵션을 표시합니다.
-
----
-
-## 🖥️ Web Terminal
-
-인스턴스 목록에서 **Terminal 아이콘**을 클릭하면 브라우저에서 직접 터미널 접속:
-
-- **WebSocket 기반** 실시간 통신
-- **xterm.js** + Catppuccin Mocha 테마
-- `docker exec`를 통한 컨테이너 접속
 
 ---
 

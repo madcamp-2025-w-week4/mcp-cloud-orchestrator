@@ -9,7 +9,7 @@
 set -e
 
 echo "=============================================="
-echo "🚀 MCP Cloud Orchestrator Deployment"
+echo "🚀 KWS (KAIST Web Service) Deployment"
 echo "=============================================="
 
 # Check if running as root
@@ -41,7 +41,7 @@ systemctl enable nginx
 
 # Start Tailscale Funnel
 echo "🌐 Starting Tailscale Funnel on port 80..."
-echo "   Public URL: https://camp-gpu-16.tailab95b0.ts.net/"
+echo "   Public URL: https://kws.p-e.kr/"
 
 # Note: Funnel needs to be run separately as it's interactive
 echo ""
@@ -54,6 +54,6 @@ echo "   1. Start Backend:  cd backend && source venv/bin/activate && python mai
 echo "   2. Start Frontend: cd frontend && npm run dev"
 echo "   3. Start Funnel:   sudo tailscale funnel 80"
 echo ""
-echo "🌐 Access URL: https://camp-gpu-16.tailab95b0.ts.net/"
-echo "📚 API Docs:   https://camp-gpu-16.tailab95b0.ts.net/api/docs"
+echo "🌐 Access URL: https://kws.p-e.kr/"
+echo "📚 API Docs:   https://kws.p-e.kr/api/docs"
 echo ""
