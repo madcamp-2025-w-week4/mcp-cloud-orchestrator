@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0",
-    "updated_at": "2026-01-30T16:50:17.291828",
+    "updated_at": "2026-01-31T23:57:20.818393",
     "description": "사용자 데이터 저장소"
   },
   "users": {
@@ -14,9 +14,9 @@
         "max_instances": 5,
         "max_cpu": 16,
         "max_memory": 32,
-        "used_instances": 1,
-        "used_cpu": 2,
-        "used_memory": 4
+        "used_instances": 3,
+        "used_cpu": 16,
+        "used_memory": 22
       },
       "is_active": true,
       "created_at": "2026-01-30T00:00:00Z",

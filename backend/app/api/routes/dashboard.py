@@ -182,3 +182,62 @@ async def get_available_images() -> list[dict]:
             "category": "Database"
         }
     ]
+
+
+@router.get(
+    "/capacity",
+    response_model=dict,
+    summary="Cluster Capacity",
+    description="Get the maximum available CPU and memory from the cluster."
+)
+async def get_cluster_capacity() -> dict:
+    """
+    등록된 Worker 노드 중 단일 노드가 제공할 수 있는 최대 리소스를 반환합니다.
+    
+    UI에서 리소스 선택 옵션을 동적으로 제한하는 데 사용됩니다.
+    """
+    from services.ray_service import ray_service
+    from services.node_manager import node_manager
+    from models.node import NodeRole
+    
+    # 등록된 Worker 노드 조회
+    workers = await node_manager.get_nodes_by_role(NodeRole.WORKER)
+    worker_ips = {w.tailscale_ip for w in workers}
+    
+    # Ray에서 노드별 리소스 조회
+    ray_nodes = ray_service.get_nodes_with_available_resources()
+    
+    # Worker 노드들의 최대 용량 계산
+    max_cpu = 0
+    max_memory = 0
+    for ray_node in ray_nodes:
+        if ray_node.get("node_ip") in worker_ips:
+            max_cpu = max(max_cpu, int(ray_node.get("cpu_available", 0)))
+            max_memory = max(max_memory, int(ray_node.get("memory_available_gb", 0)))
+    
+    # 기본값 (Worker가 없거나 Ray 연결 안됨)
+    if max_cpu == 0:
+        max_cpu = 4
+    if max_memory == 0:
+        max_memory = 8
+    
+    # CPU 옵션 생성 (1, 2, 4, ... max)
+    cpu_options = [c for c in [1, 2, 4, 8, 16, 32] if c <= max_cpu]
+    if max_cpu not in cpu_options and max_cpu > 0:
+        cpu_options.append(max_cpu)
+        cpu_options.sort()
+    
+    # 메모리 옵션 생성 (2, 4, 8, ... max)
+    memory_options = [m for m in [2, 4, 8, 16, 32, 64] if m <= max_memory]
+    if max_memory not in memory_options and max_memory > 0:
+        memory_options.append(max_memory)
+        memory_options.sort()
+    
+    return {
+        "max_cpu": max_cpu,
+        "max_memory_gb": max_memory,
+        "cpu_options": cpu_options,
+        "memory_options": memory_options,
+        "timestamp": datetime.now().isoformat()
+    }
+

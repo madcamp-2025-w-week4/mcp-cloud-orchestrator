@@ -2,17 +2,20 @@
 // MCP Cloud Orchestrator - API Client
 // ============================================================================
 // 설명: 백엔드 API와 통신하는 Axios 클라이언트
+// Production: Nginx 프록시를 통해 /api/* → Backend로 라우팅
 // ============================================================================
 
 import axios from 'axios';
 
 // API 기본 URL 설정
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Production: /api (Nginx 프록시 사용)
+// Development: 직접 백엔드 URL 사용 가능
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Axios 인스턴스 생성
 const api = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 10000,
+    timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -97,6 +100,9 @@ export const dashboardAPI = {
 
     getImages: () =>
         api.get('/dashboard/images'),
+
+    getCapacity: () =>
+        api.get('/dashboard/capacity'),
 };
 
 // ============================================================================
@@ -115,5 +121,26 @@ export const clusterAPI = {
     healthCheck: () =>
         api.post('/cluster/health-check'),
 };
+
+// ============================================================================
+// Ray Cluster API
+// ============================================================================
+
+export const rayAPI = {
+    getNodes: () =>
+        api.get('/ray/nodes'),
+
+    getResources: () =>
+        api.get('/ray/resources'),
+
+    getStatus: () =>
+        api.get('/ray/status'),
+
+    getBestNode: () =>
+        api.get('/ray/best-node'),
+};
+
+// Ray Dashboard URL
+export const RAY_DASHBOARD_URL = 'http://100.117.45.28:8265';
 
 export default api;

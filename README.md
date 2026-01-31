@@ -16,18 +16,19 @@ Tailscale VPN을 통해 연결된 **18개 분산 노드** (1 Master + 17 Workers
 
 ## 📋 주요 기능
 
-### Backend (FastAPI)
+### Backend (FastAPI + Ray SDK)
+- **Ray 클러스터 통합**: `ray.nodes()`로 실시간 노드 모니터링
+- **Docker 오케스트레이션**: SSH로 원격 노드에 컨테이너 배포
 - **인스턴스 관리**: 생성, 조회, 중지, 시작, 종료
-- **사용자 인증**: 세션 기반 인증 및 소유권 관리
-- **포트 할당**: 노드별 자동 포트 할당 (8000번부터)
+- **포트 할당**: 노드별 자동 포트 할당 (8000-9000)
 - **쿼터 관리**: 사용자별 CPU/RAM 제한 및 모니터링
-- **클러스터 헬스**: 실시간 노드 상태 확인
+- **지능형 노드 선택**: Ray 기반 가장 여유있는 노드 자동 선택
 
-### Frontend (React + Tailwind CSS)
-- **Dashboard**: 인스턴스/노드/쿼터 요약 표시
-- **Instance Table**: 상태, IP:Port, 업타임, 액션 버튼
-- **Launch Wizard**: 3단계 인스턴스 생성 마법사
-- **Nodes View**: 클러스터 노드 상태 모니터링
+### Frontend (React + Tailwind CSS - English UI)
+- **Dashboard**: Ray 클러스터 리소스 (CPU/GPU/Memory 사용량)
+- **Instance Table**: Instance ID, Node Name, IP:Port, Status
+- **Launch Wizard**: 이미지 선택 + CPU/RAM 설정 + 리뷰
+- **Ray Dashboard 링크**: 사이드바에서 바로 접속
 - **AWS Console 스타일**: 프로페셔널한 데이터 밀집 UI
 
 ---
@@ -69,10 +70,81 @@ Tailscale VPN을 통해 연결된 **18개 분산 노드** (1 Master + 17 Workers
    - **프론트엔드**: http://100.117.45.28:5174
    - **백엔드 API**: http://100.117.45.28:8000
    - **API 문서**: http://100.117.45.28:8000/docs
+   - **Ray Dashboard**: http://100.117.45.28:8265
+
+---
+
+## 🌐 프로덕션 배포 (Nginx + Tailscale Funnel)
+
+Nginx 리버스 프록시를 사용하여 **단일 공개 URL**로 다중 사용자 접근을 지원합니다.
+
+### 공개 접속 URL
+```
+https://camp-gpu-16.tailab95b0.ts.net/
+```
+
+### 아키텍처
+```
+Internet → Tailscale Funnel (Port 80)
+                ↓
+            Nginx Reverse Proxy
+           /           \
+      /api/*           /*
+         ↓              ↓
+    Backend:8000   Frontend:5174
+```
+
+### 배포 방법
+
+```bash
+# 1. Nginx 배포 스크립트 실행
+cd /root/mcp-cloud-orchestrator
+sudo ./deploy.sh
+
+# 2. Backend 시작
+cd backend && source venv/bin/activate && python main.py &
+
+# 3. Frontend 시작
+cd frontend && npm run dev &
+
+# 4. Tailscale Funnel 시작 (공개 접근 활성화)
+sudo tailscale funnel 80
+```
+
+### 라우팅 규칙
+| URL 패턴 | 라우팅 대상 |
+|----------|-------------|
+| `/api/*` | Backend (localhost:8000) |
+| `/*` | Frontend (localhost:5174) |
 
 ---
 
 ## 🚀 빠른 시작
+
+### 0. Ray 클러스터 설정 (필수)
+
+Backend를 실행하기 전에 Ray 클러스터가 실행 중이어야 합니다.
+
+**Master 노드에서 Ray Head 시작:**
+```bash
+# Master 서버 (camp-gpu-16)에서 실행
+ray start --head --port=6379 --dashboard-host=0.0.0.0 --dashboard-port=8265
+```
+
+**각 Worker 노드에서 Ray 연결:**
+```bash
+# 각 Worker 서버에서 실행 (Master IP를 Tailscale IP로 지정)
+ray start --address='100.117.45.28:6379'
+```
+
+**Ray 클러스터 상태 확인:**
+```bash
+# 연결된 노드 확인
+ray status
+
+# Ray Dashboard 접속
+# http://100.117.45.28:8265
+```
 
 ### 1. Backend 설정 및 실행
 
@@ -100,6 +172,7 @@ python main.py
 📍 서버 주소: http://0.0.0.0:8000
 📚 API 문서: http://0.0.0.0:8000/docs
 ============================================================
+Ray connected: {'CPU': 108.0, 'memory': ...}
 ```
 
 ### 2. Frontend 설정 및 실행
@@ -273,6 +346,50 @@ mcp-cloud-orchestrator/
 
 ---
 
+## ⚡ AWS-Style 리소스 검증
+
+인스턴스 생성 시 **클러스터 실제 용량을 검증**합니다. 요청한 리소스를 제공할 수 있는 Worker 노드가 없으면 `InsufficientCapacity` 에러를 반환합니다.
+
+### 용량 API
+```bash
+# 클러스터 가용 용량 조회
+curl http://localhost:8000/dashboard/capacity
+```
+
+응답 예시:
+```json
+{
+  "max_cpu": 4,
+  "max_memory_gb": 2,
+  "cpu_options": [1, 2, 4],
+  "memory_options": [2]
+}
+```
+
+### InsufficientCapacity 에러
+```json
+{
+  "error": "InsufficientCapacity",
+  "message": "Requested 8 vCPU and 16 GB RAM, but max available is 4 vCPU and 2 GB RAM.",
+  "max_cpu_available": 4,
+  "max_memory_available": 2
+}
+```
+
+> **참고**: Launch Wizard UI는 실제 가용 리소스만 선택 가능하도록 동적으로 옵션을 표시합니다.
+
+---
+
+## 🖥️ Web Terminal
+
+인스턴스 목록에서 **Terminal 아이콘**을 클릭하면 브라우저에서 직접 터미널 접속:
+
+- **WebSocket 기반** 실시간 통신
+- **xterm.js** + Catppuccin Mocha 테마
+- `docker exec`를 통한 컨테이너 접속
+
+---
+
 ## 📝 라이선스
 
 MIT License
@@ -282,3 +399,4 @@ MIT License
 ## 🤝 기여
 
 버그 리포트, 기능 제안, Pull Request를 환영합니다!
+

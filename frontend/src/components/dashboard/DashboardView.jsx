@@ -3,8 +3,8 @@
 // ============================================================================
 
 import { useState, useEffect } from 'react';
-import { Server, HardDrive, Cpu, MemoryStick, Activity, Plus } from 'lucide-react';
-import { dashboardAPI, authAPI } from '../../api/client';
+import { Server, HardDrive, Cpu, MemoryStick, Activity, Plus, Zap, ExternalLink } from 'lucide-react';
+import { dashboardAPI, authAPI, rayAPI, RAY_DASHBOARD_URL } from '../../api/client';
 import StatsCard from './StatsCard';
 import QuotaWidget from './QuotaWidget';
 
@@ -12,6 +12,7 @@ function DashboardView({ onLaunchInstance }) {
     const [summary, setSummary] = useState(null);
     const [quota, setQuota] = useState(null);
     const [health, setHealth] = useState(null);
+    const [rayStatus, setRayStatus] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -33,6 +34,14 @@ function DashboardView({ onLaunchInstance }) {
             setSummary(summaryRes.data);
             setQuota(quotaRes.data);
             setHealth(healthRes.data);
+
+            // Ray 상태 별도로 로드 (실패해도 무시)
+            try {
+                const rayRes = await rayAPI.getStatus();
+                setRayStatus(rayRes.data);
+            } catch (e) {
+                console.log('Ray cluster not connected');
+            }
         } catch (error) {
             console.error('Failed to load dashboard data:', error);
         } finally {
@@ -99,6 +108,86 @@ function DashboardView({ onLaunchInstance }) {
                     color="purple"
                 />
             </div>
+
+            {/* Ray Cluster Resources */}
+            {rayStatus && (
+                <div className="card bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+                    <div className="card-header flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Zap className="w-5 h-5 text-amber-500" />
+                            <h3 className="card-title text-amber-800">Ray Cluster Resources</h3>
+                            <span className={`ml-2 px-2 py-0.5 text-xs font-medium rounded ${rayStatus.is_connected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                {rayStatus.is_connected ? 'Connected' : 'Disconnected'}
+                            </span>
+                        </div>
+                        <a
+                            href={RAY_DASHBOARD_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-amber-600 hover:text-amber-800 flex items-center gap-1"
+                        >
+                            Open Ray Dashboard
+                            <ExternalLink className="w-4 h-4" />
+                        </a>
+                    </div>
+                    <div className="card-body">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-amber-600">
+                                    {rayStatus.nodes?.alive || 0}
+                                </div>
+                                <div className="text-sm text-amber-700">Active Nodes</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-blue-600">
+                                    {rayStatus.resources?.total?.cpu?.toFixed(0) || 0}
+                                </div>
+                                <div className="text-sm text-blue-700">Total CPUs</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-green-600">
+                                    {rayStatus.resources?.total?.memory?.toFixed(1) || 0} GB
+                                </div>
+                                <div className="text-sm text-green-700">Total Memory</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-purple-600">
+                                    {rayStatus.resources?.total?.gpu || 0}
+                                </div>
+                                <div className="text-sm text-purple-700">GPUs</div>
+                            </div>
+                        </div>
+
+                        {/* Usage Bars */}
+                        <div className="mt-6 space-y-3">
+                            <div>
+                                <div className="flex justify-between text-sm mb-1">
+                                    <span className="text-slate-600">CPU Usage</span>
+                                    <span className="font-medium">{rayStatus.usage_percent?.cpu?.toFixed(1) || 0}%</span>
+                                </div>
+                                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-blue-500 rounded-full transition-all"
+                                        style={{ width: `${Math.min(rayStatus.usage_percent?.cpu || 0, 100)}%` }}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex justify-between text-sm mb-1">
+                                    <span className="text-slate-600">Memory Usage</span>
+                                    <span className="font-medium">{rayStatus.usage_percent?.memory?.toFixed(1) || 0}%</span>
+                                </div>
+                                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-green-500 rounded-full transition-all"
+                                        style={{ width: `${Math.min(rayStatus.usage_percent?.memory || 0, 100)}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Quota Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

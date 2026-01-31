@@ -58,3 +58,31 @@ class DataFileException(MCPOrchestratorException):
         )
         self.file_path = file_path
         self.operation = operation
+
+
+class InsufficientCapacityException(MCPOrchestratorException):
+    """
+    요청한 리소스를 제공할 수 있는 노드가 없을 때 발생하는 예외
+    
+    AWS EC2의 InsufficientInstanceCapacity 에러와 유사합니다.
+    """
+    
+    def __init__(
+        self,
+        requested_cpu: int,
+        requested_memory: int,
+        max_cpu_available: int,
+        max_memory_available: int
+    ):
+        super().__init__(
+            message="Insufficient Capacity",
+            detail=(
+                f"Requested {requested_cpu} vCPU and {requested_memory} GB RAM, "
+                f"but max available is {max_cpu_available} vCPU and {max_memory_available} GB RAM."
+            )
+        )
+        self.requested_cpu = requested_cpu
+        self.requested_memory = requested_memory
+        self.max_cpu_available = max_cpu_available
+        self.max_memory_available = max_memory_available
+

@@ -70,6 +70,7 @@ class Instance(BaseModel):
     # 상태 정보
     status: InstanceStatus = Field(default=InstanceStatus.PENDING, description="인스턴스 상태")
     public_ip: Optional[str] = Field(default=None, description="공개 IP 주소")
+    container_id: Optional[str] = Field(default=None, description="Docker 컨테이너 ID")
     
     # 타임스탬프
     created_at: datetime = Field(default_factory=datetime.now, description="생성 시간")

@@ -9,6 +9,7 @@ import DashboardView from './components/dashboard/DashboardView';
 import InstancesView from './components/instances/InstancesView';
 import LaunchWizard from './components/wizard/LaunchWizard';
 import NodesView from './components/nodes/NodesView';
+import WebTerminal from './components/terminal/WebTerminal';
 import { authAPI } from './api/client';
 import './index.css';
 
@@ -16,6 +17,7 @@ function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [user, setUser] = useState(null);
   const [showLaunchWizard, setShowLaunchWizard] = useState(false);
+  const [terminalInstanceId, setTerminalInstanceId] = useState(null);
 
   useEffect(() => {
     // 사용자 정보 로드
@@ -49,12 +51,21 @@ function App() {
     setCurrentView('instances');
   };
 
+  const handleOpenTerminal = (instanceId) => {
+    setTerminalInstanceId(instanceId);
+  };
+
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
         return <DashboardView onLaunchInstance={() => setShowLaunchWizard(true)} />;
       case 'instances':
-        return <InstancesView onLaunchInstance={() => setShowLaunchWizard(true)} />;
+        return (
+          <InstancesView
+            onLaunchInstance={() => setShowLaunchWizard(true)}
+            onOpenTerminal={handleOpenTerminal}
+          />
+        );
       case 'nodes':
         return <NodesView />;
       default:
@@ -89,8 +100,17 @@ function App() {
           onComplete={handleLaunchComplete}
         />
       )}
+
+      {/* Web Terminal Modal */}
+      {terminalInstanceId && (
+        <WebTerminal
+          instanceId={terminalInstanceId}
+          onClose={() => setTerminalInstanceId(null)}
+        />
+      )}
     </div>
   );
 }
 
 export default App;
+

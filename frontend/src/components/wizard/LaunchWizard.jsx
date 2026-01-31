@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { useState, useEffect } from 'react';
-import { X, ChevronRight, ChevronLeft, Check, Loader2 } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Check, Loader2, AlertTriangle } from 'lucide-react';
 import { dashboardAPI, instanceAPI } from '../../api/client';
 
 function LaunchWizard({ onClose, onComplete }) {
@@ -11,6 +11,14 @@ function LaunchWizard({ onClose, onComplete }) {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [launching, setLaunching] = useState(false);
+
+    // Cluster capacity state
+    const [capacity, setCapacity] = useState({
+        max_cpu: 4,
+        max_memory_gb: 8,
+        cpu_options: [1, 2, 4],
+        memory_options: [2, 4, 8]
+    });
 
     const [formData, setFormData] = useState({
         name: '',
@@ -21,6 +29,11 @@ function LaunchWizard({ onClose, onComplete }) {
 
     useEffect(() => {
         loadImages();
+        loadCapacity();
+
+        // Poll capacity every 5 seconds for reactive updates
+        const interval = setInterval(loadCapacity, 5000);
+        return () => clearInterval(interval);
     }, []);
 
     const loadImages = async () => {
@@ -32,6 +45,23 @@ function LaunchWizard({ onClose, onComplete }) {
             console.error('Failed to load images:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadCapacity = async () => {
+        try {
+            const response = await dashboardAPI.getCapacity();
+            setCapacity(response.data);
+
+            // Adjust selected values if they exceed new capacity
+            if (formData.cpu > response.data.max_cpu) {
+                setFormData(prev => ({ ...prev, cpu: response.data.cpu_options[0] || 1 }));
+            }
+            if (formData.memory > response.data.max_memory_gb) {
+                setFormData(prev => ({ ...prev, memory: response.data.memory_options[0] || 2 }));
+            }
+        } catch (error) {
+            console.error('Failed to load capacity:', error);
         }
     };
 
@@ -110,10 +140,13 @@ function LaunchWizard({ onClose, onComplete }) {
                                     {images.map((image) => (
                                         <button
                                             key={image.id}
-                                            onClick={() => setFormData({ ...formData, image: image.id })}
+                                            onClick={() => {
+                                                setFormData({ ...formData, image: image.id });
+                                                setStep(2); // Auto-advance to Step 2
+                                            }}
                                             className={`p-4 border rounded-lg text-left transition-all ${formData.image === image.id
-                                                    ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20'
-                                                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                                                ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20'
+                                                : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                                                 }`}
                                         >
                                             <div className="font-medium text-slate-800">{image.name}</div>
@@ -136,15 +169,15 @@ function LaunchWizard({ onClose, onComplete }) {
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="label">CPU Cores</label>
-                                    <div className="flex items-center gap-3">
-                                        {[1, 2, 4, 8].map((value) => (
+                                    <label className="label">CPU Cores (max: {capacity.max_cpu})</label>
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                        {capacity.cpu_options.map((value) => (
                                             <button
                                                 key={value}
                                                 onClick={() => setFormData({ ...formData, cpu: value })}
                                                 className={`px-6 py-3 border rounded-lg font-medium transition-all ${formData.cpu === value
-                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                                        : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                    : 'border-slate-200 text-slate-600 hover:border-slate-300'
                                                     }`}
                                             >
                                                 {value} vCPU
@@ -154,15 +187,15 @@ function LaunchWizard({ onClose, onComplete }) {
                                 </div>
 
                                 <div>
-                                    <label className="label">Memory (GB)</label>
-                                    <div className="flex items-center gap-3">
-                                        {[2, 4, 8, 16, 32].map((value) => (
+                                    <label className="label">Memory (max: {capacity.max_memory_gb} GB)</label>
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                        {capacity.memory_options.map((value) => (
                                             <button
                                                 key={value}
                                                 onClick={() => setFormData({ ...formData, memory: value })}
                                                 className={`px-6 py-3 border rounded-lg font-medium transition-all ${formData.memory === value
-                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                                        : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                    : 'border-slate-200 text-slate-600 hover:border-slate-300'
                                                     }`}
                                             >
                                                 {value} GB
@@ -177,6 +210,12 @@ function LaunchWizard({ onClose, onComplete }) {
                                 <div className="text-sm text-slate-500 mt-1">
                                     {formData.cpu} vCPU, {formData.memory} GB RAM
                                 </div>
+                            </div>
+
+                            {/* Capacity info banner */}
+                            <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+                                <AlertTriangle className="w-4 h-4" />
+                                <span>Resource options are limited based on available cluster capacity.</span>
                             </div>
                         </div>
                     )}

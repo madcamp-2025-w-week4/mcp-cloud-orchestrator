@@ -17,8 +17,10 @@ from fastapi.middleware.cors import CORSMiddleware
 sys.path.insert(0, str(Path(__file__).parent))
 
 from core.config import settings
-from app.api import cluster_router, instances_router, auth_router, dashboard_router
+from app.api import cluster_router, instances_router, auth_router, dashboard_router, ray_router, terminal_router
 from services.health_monitor import health_monitor
+from services.ray_service import ray_service
+from services.docker_orchestrator import docker_orchestrator
 
 
 @asynccontextmanager
@@ -33,6 +35,7 @@ async def lifespan(app: FastAPI):
     print(f"🚀 {settings.app_name} v{settings.app_version} 시작")
     print(f"📍 서버 주소: http://{settings.host}:{settings.port}")
     print(f"📚 API 문서: http://{settings.host}:{settings.port}/docs")
+    print(f"🎯 Ray Dashboard: http://100.117.45.28:8265")
     print("=" * 60)
     
     yield
@@ -40,6 +43,8 @@ async def lifespan(app: FastAPI):
     # 종료 시 실행
     print("\n🛑 서버 종료 중...")
     await health_monitor.close()
+    docker_orchestrator.close_all_connections()
+    ray_service.disconnect()
     print("✅ 리소스 정리 완료")
 
 
@@ -70,9 +75,20 @@ app = FastAPI(
 )
 
 # CORS 미들웨어 설정
+# Production: Tailscale Funnel을 통한 접근 허용
+ALLOWED_ORIGINS = [
+    "https://camp-gpu-16.tailab95b0.ts.net",
+    "http://camp-gpu-16.tailab95b0.ts.net",
+    "http://localhost:5174",
+    "http://localhost:80",
+    "http://127.0.0.1:5174",
+    "http://100.117.45.28:5174",
+    "http://100.117.45.28",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 프로덕션에서는 특정 도메인만 허용
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -83,6 +99,8 @@ app.include_router(cluster_router)
 app.include_router(instances_router)
 app.include_router(auth_router)
 app.include_router(dashboard_router)
+app.include_router(ray_router)
+app.include_router(terminal_router)
 
 
 @app.get("/", tags=["Root"])
@@ -95,11 +113,13 @@ async def root():
         "version": settings.app_version,
         "description": "User-Facing Self-Service Portal for Container Instances",
         "docs_url": "/docs",
+        "ray_dashboard": "http://100.117.45.28:8265",
         "endpoints": {
             "instances": "/instances",
             "auth": "/auth",
             "dashboard": "/dashboard",
-            "cluster": "/cluster"
+            "cluster": "/cluster",
+            "ray": "/ray"
         }
     }
 

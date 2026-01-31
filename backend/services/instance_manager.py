@@ -16,8 +16,10 @@ from models.node import NodeRole
 from services.node_manager import node_manager
 from services.port_allocator import port_allocator
 from services.quota_service import quota_service
+from services.ray_service import ray_service
+from services.docker_orchestrator import docker_orchestrator
 from core.config import settings
-from core.exceptions import MCPOrchestratorException
+from core.exceptions import MCPOrchestratorException, InsufficientCapacityException
 
 
 class InstanceNotFoundException(MCPOrchestratorException):
@@ -96,15 +98,24 @@ class InstanceManager:
         
         self._instances_cache = data
     
-    async def _select_node(self) -> str:
+    async def _select_node_with_capacity(self, required_cpu: int, required_memory: int) -> str:
         """
-        인스턴스를 배치할 워커 노드를 선택합니다.
+        요청한 리소스를 제공할 수 있는 워커 노드를 선택합니다.
         
-        현재는 랜덤 선택, 추후 로드 밸런싱 로직 추가 가능
+        Ray SDK를 통해 충분한 용량이 있는 노드를 찾습니다.
+        단, 등록된 Worker 노드 중에서만 선택합니다.
         
+        Args:
+            required_cpu: 필요한 CPU 코어 수
+            required_memory: 필요한 메모리 (GB)
+            
         Returns:
             str: 선택된 노드 ID
+            
+        Raises:
+            InsufficientCapacityException: 충분한 용량이 없을 때
         """
+        # 먼저 등록된 Worker 노드 목록 조회
         workers = await node_manager.get_nodes_by_role(NodeRole.WORKER)
         
         if not workers:
@@ -113,9 +124,55 @@ class InstanceManager:
                 detail="There are no worker nodes registered in the cluster."
             )
         
-        # 랜덤 선택 (추후 로드 밸런싱으로 개선 가능)
-        selected = random.choice(workers)
-        return selected.id
+        # Worker 노드 IP 집합
+        worker_ips = {w.tailscale_ip for w in workers}
+        worker_by_ip = {w.tailscale_ip: w for w in workers}
+        
+        # Ray에서 노드별 가용 리소스 조회
+        try:
+            ray_nodes = ray_service.get_nodes_with_available_resources()
+            
+            # Worker 노드 중에서 요청 리소스를 충족하는 노드 찾기
+            capable_workers = []
+            for ray_node in ray_nodes:
+                node_ip = ray_node.get("node_ip")
+                cpu_avail = ray_node.get("cpu_available", 0)
+                mem_avail = ray_node.get("memory_available_gb", 0)
+                
+                # Worker 노드이고 용량 충족하는 경우
+                if node_ip in worker_ips and cpu_avail >= required_cpu and mem_avail >= required_memory:
+                    capable_workers.append({
+                        "worker": worker_by_ip[node_ip],
+                        "cpu_available": cpu_avail,
+                        "memory_available": mem_avail
+                    })
+            
+            if capable_workers:
+                # CPU 가장 여유로운 노드 선택
+                best = max(capable_workers, key=lambda x: x["cpu_available"])
+                return best["worker"].id
+            
+            # 용량 충족 노드 없음 - Worker 중 최대 용량 조회
+            max_cpu = 0
+            max_mem = 0
+            for ray_node in ray_nodes:
+                if ray_node.get("node_ip") in worker_ips:
+                    max_cpu = max(max_cpu, ray_node.get("cpu_available", 0))
+                    max_mem = max(max_mem, ray_node.get("memory_available_gb", 0))
+            
+            raise InsufficientCapacityException(
+                requested_cpu=required_cpu,
+                requested_memory=required_memory,
+                max_cpu_available=int(max_cpu),
+                max_memory_available=int(max_mem)
+            )
+            
+        except InsufficientCapacityException:
+            raise
+        except Exception as e:
+            print(f"Ray capacity check failed, using fallback: {e}")
+            # Ray 실패 시 랜덤 선택 (용량 체크 불가)
+            return random.choice(workers).id
     
     async def create_instance(self, user_id: str, request: InstanceCreate) -> Instance:
         """
@@ -130,6 +187,7 @@ class InstanceManager:
             
         Raises:
             QuotaExceededException: 쿼터 초과 시
+            InsufficientCapacityException: 클러스터 용량 부족 시
         """
         # 쿼터 확인
         quota_check = await quota_service.check_quota(user_id, request.cpu, request.memory)
@@ -137,8 +195,8 @@ class InstanceManager:
         if not quota_check["allowed"]:
             raise QuotaExceededException(quota_check.get("reason", "Quota exceeded"))
         
-        # 노드 선택
-        node_id = await self._select_node()
+        # 용량 기반 노드 선택 (InsufficientCapacity 발생 가능)
+        node_id = await self._select_node_with_capacity(request.cpu, request.memory)
         node = await node_manager.get_node(node_id)
         
         # 인스턴스 생성
@@ -162,9 +220,41 @@ class InstanceManager:
         # 쿼터 사용량 업데이트
         await quota_service.allocate_resources(user_id, request.cpu, request.memory)
         
-        # 인스턴스 상태를 RUNNING으로 변경 (실제로는 Docker 컨테이너 시작 후)
-        instance.status = InstanceStatus.RUNNING
-        instance.started_at = datetime.now()
+        # Docker 컨테이너 배포
+        try:
+            deploy_result = await docker_orchestrator.deploy_container(
+                node_ip=node.tailscale_ip,
+                image=request.image,
+                port=port,
+                container_name=f"mcp-{instance.id}",
+                cpu_limit=float(request.cpu),
+                memory_limit=f"{request.memory}g",
+                user_id=user_id,
+                instance_id=instance.id
+            )
+            
+            if deploy_result.get("success"):
+                instance.status = InstanceStatus.RUNNING
+                instance.started_at = datetime.now()
+                instance.container_id = deploy_result.get("container_id")
+            else:
+                # 배포 실패 시 리소스 롤백
+                await quota_service.release_resources(user_id, request.cpu, request.memory)
+                await port_allocator.release_port(node_id, instance.id)
+                raise MCPOrchestratorException(
+                    message="Container deployment failed",
+                    detail=deploy_result.get("error", "Unknown error")
+                )
+        except MCPOrchestratorException:
+            raise
+        except Exception as e:
+            # 배포 실패 시 리소스 롤백
+            await quota_service.release_resources(user_id, request.cpu, request.memory)
+            await port_allocator.release_port(node_id, instance.id)
+            raise MCPOrchestratorException(
+                message="Container deployment failed",
+                detail=str(e)
+            )
         
         # 저장
         data = await self._load_instances()

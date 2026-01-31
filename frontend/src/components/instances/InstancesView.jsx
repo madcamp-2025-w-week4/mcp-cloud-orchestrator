@@ -3,11 +3,11 @@
 // ============================================================================
 
 import { useState, useEffect } from 'react';
-import { Plus, RefreshCw, Search, Play, Square, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, RefreshCw, Search, Play, Square, Trash2, ExternalLink, Terminal } from 'lucide-react';
 import { instanceAPI } from '../../api/client';
 import StatusBadge from './StatusBadge';
 
-function InstancesView({ onLaunchInstance }) {
+function InstancesView({ onLaunchInstance, onOpenTerminal }) {
     const [instances, setInstances] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
@@ -234,6 +234,15 @@ function InstancesView({ onLaunchInstance }) {
                                         </td>
                                         <td>
                                             <div className="flex items-center gap-2">
+                                                {instance.status === 'running' && (
+                                                    <button
+                                                        onClick={() => onOpenTerminal && onOpenTerminal(instance.id)}
+                                                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
+                                                        title="Open Terminal"
+                                                    >
+                                                        <Terminal className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                                 {instance.status === 'running' ? (
                                                     <button
                                                         onClick={() => handleStop(instance.id)}

@@ -9,7 +9,7 @@ from typing import Optional
 
 from models.instance import Instance, InstanceCreate, InstanceSummary, InstanceStatus
 from services.instance_manager import instance_manager, InstanceNotFoundException, QuotaExceededException
-from core.exceptions import MCPOrchestratorException
+from core.exceptions import MCPOrchestratorException, InsufficientCapacityException
 
 
 # 라우터 생성
@@ -62,8 +62,25 @@ async def create_instance(
         return instance
     except QuotaExceededException as e:
         raise HTTPException(status_code=400, detail=e.detail)
+    except InsufficientCapacityException as e:
+        # AWS-style InsufficientCapacity 에러 - 최대 가용 리소스 정보 포함
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "InsufficientCapacity",
+                "message": e.detail,
+                "max_cpu_available": e.max_cpu_available,
+                "max_memory_available": e.max_memory_available
+            }
+        )
     except MCPOrchestratorException as e:
+        print(f"[ERROR] Instance creation failed: {e.message} - {e.detail}")
         raise HTTPException(status_code=500, detail=e.message)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"[ERROR] Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
