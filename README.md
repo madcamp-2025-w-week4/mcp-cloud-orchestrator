@@ -98,19 +98,30 @@ Internet → Tailscale Funnel (Port 80)
 ### 배포 방법
 
 ```bash
-# 1. Nginx 배포 스크립트 실행
+# 1. Nginx 설정 배포 (처음 한 번만)
 cd /root/mcp-cloud-orchestrator
 sudo ./deploy.sh
 
-# 2. Backend 시작
-cd backend && source venv/bin/activate && python main.py &
+# 2. Nginx 시작 (재부팅 후 필요)
+sudo systemctl start nginx
+sudo systemctl enable nginx  # 부팅 시 자동 시작
 
-# 3. Frontend 시작
-cd frontend && npm run dev &
+# 3. Backend 시작 (tmux 세션에서 실행 권장)
+cd backend && source venv/bin/activate && python main.py
 
-# 4. Tailscale Funnel 시작 (공개 접근 활성화)
+# 4. Frontend 시작 (새 tmux 세션에서 실행 권장)
+cd frontend && npm run dev -- --host 0.0.0.0 --port 5174
+
+# 5. Tailscale Funnel 시작 (공개 접근 활성화)
 sudo tailscale funnel 80
 ```
+
+> **Tip**: `tmux`를 사용하면 SSH 연결이 끊어져도 프로세스가 유지됩니다.
+> ```bash
+> tmux new -s backend   # Backend 세션
+> tmux new -s frontend  # Frontend 세션
+> tmux new -s funnel    # Funnel 세션
+> ```
 
 ### 라우팅 규칙
 | URL 패턴 | 라우팅 대상 |
