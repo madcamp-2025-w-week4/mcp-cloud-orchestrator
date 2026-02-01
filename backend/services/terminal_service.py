@@ -42,6 +42,7 @@ class TerminalSession:
                 "-tt",  # Force pseudo-terminal allocation
                 "-o", "StrictHostKeyChecking=no",
                 "-o", "UserKnownHostsFile=/dev/null",
+                "-o", "LogLevel=ERROR",  # 경고 메시지 숨기기
                 f"{self.ssh_user}@{self.node_ip}",
                 f"docker exec -it {self.container_id} /bin/bash"
             ]
