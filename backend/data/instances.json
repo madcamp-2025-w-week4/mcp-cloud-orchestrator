@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0",
-    "updated_at": "2026-01-31T23:57:30.605085",
+    "updated_at": "2026-02-01T10:45:31.535861",
     "description": "인스턴스 데이터 저장소"
   },
   "instances": {
@@ -122,6 +122,23 @@
       "created_at": "2026-01-31T23:57:20.812584",
       "started_at": "2026-01-31T23:57:30.603509",
       "stopped_at": null,
+      "tags": []
+    },
+    "8c0bbe80": {
+      "id": "8c0bbe80",
+      "name": "my-test-server",
+      "image": "ubuntu:22.04",
+      "user_id": "user-demo-001",
+      "node_id": "camp-66",
+      "port": 8001,
+      "cpu": 4,
+      "memory": 2,
+      "status": "terminated",
+      "public_ip": "100.83.132.110",
+      "container_id": "b71b07105293",
+      "created_at": "2026-02-01T10:42:43.510535",
+      "started_at": "2026-02-01T10:45:13.077054",
+      "stopped_at": "2026-02-01T10:45:27.098144",
       "tags": []
     }
   }

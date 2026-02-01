@@ -220,6 +220,10 @@ class InstanceManager:
         # 쿼터 사용량 업데이트
         await quota_service.allocate_resources(user_id, request.cpu, request.memory)
         
+        # 청구 사용량 기록 (AWS 스타일)
+        from services.billing_service import billing_service
+        await billing_service.record_instance_start(user_id, request.cpu, request.memory)
+        
         # Docker 컨테이너 배포
         try:
             deploy_result = await docker_orchestrator.deploy_container(

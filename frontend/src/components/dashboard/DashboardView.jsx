@@ -6,11 +6,11 @@ import { useState, useEffect } from 'react';
 import { Server, HardDrive, Cpu, MemoryStick, Activity, Plus, Zap, ExternalLink } from 'lucide-react';
 import { dashboardAPI, authAPI, rayAPI, RAY_DASHBOARD_URL } from '../../api/client';
 import StatsCard from './StatsCard';
-import QuotaWidget from './QuotaWidget';
+import BillingWidget from './BillingWidget';
 
 function DashboardView({ onLaunchInstance }) {
     const [summary, setSummary] = useState(null);
-    const [quota, setQuota] = useState(null);
+    const [billing, setBilling] = useState(null);
     const [health, setHealth] = useState(null);
     const [rayStatus, setRayStatus] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,14 +25,14 @@ function DashboardView({ onLaunchInstance }) {
 
     const loadDashboardData = async () => {
         try {
-            const [summaryRes, quotaRes, healthRes] = await Promise.all([
+            const [summaryRes, billingRes, healthRes] = await Promise.all([
                 dashboardAPI.getSummary(),
-                authAPI.getQuota(),
+                authAPI.getBilling(),
                 dashboardAPI.getHealth()
             ]);
 
             setSummary(summaryRes.data);
-            setQuota(quotaRes.data);
+            setBilling(billingRes.data);
             setHealth(healthRes.data);
 
             // Ray 상태 별도로 로드 (실패해도 무시)
@@ -191,9 +191,9 @@ function DashboardView({ onLaunchInstance }) {
 
             {/* Quota Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <QuotaWidget
-                    title="Resource Quota"
-                    quota={quota}
+                <BillingWidget
+                    title="Usage & Billing"
+                    billing={billing}
                 />
 
                 {/* Quick Actions */}

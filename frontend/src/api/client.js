@@ -51,6 +51,9 @@ export const authAPI = {
     getQuota: () =>
         api.get('/auth/quota'),
 
+    getBilling: () =>
+        api.get('/auth/billing'),
+
     logout: () =>
         api.post('/auth/logout'),
 };

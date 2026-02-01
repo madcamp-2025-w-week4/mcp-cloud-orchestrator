@@ -97,10 +97,10 @@ function LaunchWizard({ onClose, onComplete }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-fadeIn">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-fadeIn">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50 flex-shrink-0">
                     <div>
                         <h2 className="text-lg font-semibold text-slate-800">Launch Instance</h2>
                         <p className="text-sm text-slate-500">Step {step} of 3</p>
@@ -114,15 +114,15 @@ function LaunchWizard({ onClose, onComplete }) {
                 </div>
 
                 {/* Progress Bar */}
-                <div className="h-1 bg-slate-200">
+                <div className="h-1 bg-slate-200 flex-shrink-0">
                     <div
                         className="h-full bg-blue-500 transition-all duration-300"
                         style={{ width: `${(step / 3) * 100}%` }}
                     />
                 </div>
 
-                {/* Content */}
-                <div className="p-6 min-h-[400px]">
+                {/* Content - Scrollable */}
+                <div className="p-6 flex-1 overflow-y-auto min-h-0">
                     {/* Step 1: Select Image */}
                     {step === 1 && (
                         <div className="space-y-4">
@@ -264,8 +264,8 @@ function LaunchWizard({ onClose, onComplete }) {
                     )}
                 </div>
 
-                {/* Footer */}
-                <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
+                {/* Footer - Always visible */}
+                <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50 flex-shrink-0">
                     <button
                         onClick={() => step > 1 ? setStep(step - 1) : onClose()}
                         className="btn btn-secondary flex items-center gap-2"

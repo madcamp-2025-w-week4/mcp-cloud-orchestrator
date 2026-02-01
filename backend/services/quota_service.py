@@ -23,59 +23,36 @@ class QuotaService:
         """
         사용자가 요청한 리소스가 쿼터 내인지 확인합니다.
         
+        NOTE: 제한은 더 이상 적용되지 않습니다 (사용량 기반 청구 방식).
+        항상 허용하고, 사용량만 기록합니다.
+        
         Args:
             user_id: 사용자 ID
             requested_cpu: 요청 CPU 코어 수
             requested_memory: 요청 메모리 (GB)
             
         Returns:
-            dict: 쿼터 확인 결과
+            dict: 쿼터 확인 결과 (항상 allowed: True)
         """
         user = await auth_service.get_user_by_id(user_id)
         
         if not user:
+            # 사용자가 없어도 허용 (데모 모드)
             return {
-                "allowed": False,
-                "reason": "User not found",
-                "user_id": user_id
+                "allowed": True,
+                "user_id": user_id,
+                "note": "Usage-based billing mode"
             }
         
         quota = user.quota
         
-        # 인스턴스 수 확인
-        if quota.used_instances >= quota.max_instances:
-            return {
-                "allowed": False,
-                "reason": "Maximum instance limit reached",
-                "current": quota.used_instances,
-                "max": quota.max_instances
-            }
-        
-        # CPU 확인
-        if quota.used_cpu + requested_cpu > quota.max_cpu:
-            return {
-                "allowed": False,
-                "reason": "CPU quota exceeded",
-                "requested": requested_cpu,
-                "available": quota.available_cpu,
-                "max": quota.max_cpu
-            }
-        
-        # 메모리 확인
-        if quota.used_memory + requested_memory > quota.max_memory:
-            return {
-                "allowed": False,
-                "reason": "Memory quota exceeded",
-                "requested": requested_memory,
-                "available": quota.available_memory,
-                "max": quota.max_memory
-            }
-        
+        # 제한 없이 항상 허용 (사용량 기반 청구)
         return {
             "allowed": True,
-            "remaining_instances": quota.available_instances - 1,
-            "remaining_cpu": quota.available_cpu - requested_cpu,
-            "remaining_memory": quota.available_memory - requested_memory
+            "current_instances": quota.used_instances,
+            "current_cpu": quota.used_cpu,
+            "current_memory": quota.used_memory,
+            "note": "Usage-based billing - no limits applied"
         }
     
     async def allocate_resources(self, user_id: str, cpu: int, memory: int) -> bool:

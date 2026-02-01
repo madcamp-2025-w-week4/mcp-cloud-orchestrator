@@ -112,3 +112,29 @@ async def logout(
     """
     if x_session_id:
         await auth_service.invalidate_session(x_session_id)
+
+
+@router.get(
+    "/billing",
+    response_model=dict,
+    summary="Get Billing Summary",
+    description="Get the current user's usage-based billing information."
+)
+async def get_billing(
+    x_user_id: Optional[str] = Header(None, alias="X-User-ID")
+) -> dict:
+    """
+    현재 사용자의 청구 요약을 반환합니다.
+    
+    AWS/Railway 스타일 사용량 기반 청구:
+    - CPU: $0.02/hour per vCPU
+    - Memory: $0.01/hour per GB
+    - Instance: $0.005/hour per instance
+    """
+    from services.billing_service import billing_service
+    
+    if not x_user_id:
+        x_user_id = "user-demo-001"
+    
+    summary = await billing_service.get_billing_summary(x_user_id)
+    return summary
