@@ -8,8 +8,9 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://reactjs.org)
 [![Ray](https://img.shields.io/badge/Ray-2.9.0-00A3E0?logo=ray&logoColor=white)](https://ray.io)
-[![Tailwind](https://img.shields.io/badge/Tailwind-3.4+-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Tailwind](https://img.shields.io/badge/Tailwind-3.4+-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)  
 
+## 팀원 : PNU 21 윤민석, SNU 20 김민기
 ---
 
 ## 📝 목차
