@@ -1,4 +1,4 @@
-# MCP Cloud Orchestrator
+# KWS ( Kaist Web Services )
 
 > **Live Demo**: [https://camp-gpu-16.tailab95b0.ts.net/](https://camp-gpu-16.tailab95b0.ts.net/)
 
@@ -33,7 +33,7 @@
 
 ## 📖 프로젝트 소개
 
-**MCP Cloud Orchestrator**는 Tailscale VPN을 통해 연결된 **18개 분산 노드** (1 Master + 17 Workers)를 관리하고, 사용자가 직접 컨테이너 인스턴스를 요청, 관리, 모니터링할 수 있는 셀프서비스 포털입니다.
+**Kaist Web Services**는 Tailscale VPN을 통해 연결된 **18개 분산 노드** (1 Master + 17 Workers)를 관리하고, 사용자가 직접 컨테이너 인스턴스를 요청, 관리, 모니터링할 수 있는 셀프서비스 포털입니다.
 
 ### 🎯 기획 의도
 
@@ -225,7 +225,7 @@ python main.py
 서버가 시작되면:
 ```
 ============================================================
-🚀 MCP Cloud Orchestrator v0.1.0 시작
+🚀 Kaist Web Services v0.1.0 시작
 📍 서버 주소: http://0.0.0.0:8000
 📚 API 문서: http://0.0.0.0:8000/docs
 ============================================================
