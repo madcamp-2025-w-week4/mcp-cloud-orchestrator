@@ -2,12 +2,12 @@
   "user-demo-001": {
     "billing_month": "2026-02",
     "usage": {
-      "cpu_hours": 4.0,
-      "memory_gb_hours": 2.0,
-      "instance_hours": 1.0
+      "cpu_hours": 8.0,
+      "memory_gb_hours": 4.0,
+      "instance_hours": 2.0
     },
-    "total_amount": 0.10500000000000001,
-    "last_updated": "2026-02-01T10:42:43.520516"
+    "total_amount": 0.21000000000000002,
+    "last_updated": "2026-02-02T16:16:33.086191"
   },
   "user-admin-001": {
     "billing_month": "2026-02",

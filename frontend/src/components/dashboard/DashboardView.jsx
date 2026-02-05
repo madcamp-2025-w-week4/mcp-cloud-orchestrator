@@ -122,8 +122,6 @@ function DashboardView({ onLaunchInstance }) {
                         </div>
                         <a
                             href={RAY_DASHBOARD_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
                             className="text-sm text-amber-600 hover:text-amber-800 flex items-center gap-1"
                         >
                             Open Ray Dashboard

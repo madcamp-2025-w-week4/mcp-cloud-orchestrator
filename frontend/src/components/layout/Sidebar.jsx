@@ -50,8 +50,6 @@ function Sidebar({ currentView, onNavigate }) {
                 {/* Ray Dashboard Link */}
                 <a
                     href={RAY_DASHBOARD_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="sidebar-link w-full text-left flex items-center gap-2 mt-4 text-amber-400 hover:text-amber-300 border-t border-slate-700 pt-4"
                 >
                     <Activity className="w-5 h-5" />

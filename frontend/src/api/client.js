@@ -144,6 +144,6 @@ export const rayAPI = {
 };
 
 // Ray Dashboard URL
-export const RAY_DASHBOARD_URL = 'http://100.117.45.28:8265';
+export const RAY_DASHBOARD_URL = '/ray';
 
 export default api;
